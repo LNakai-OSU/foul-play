@@ -1,0 +1,17 @@
+import '@fontsource-variable/inter';
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/700.css';
+import '@fontsource/special-elite';
+import './styles/tokens.css';
+import './styles/base.css';
+import './styles/components.css';
+import './styles/layouts.css';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

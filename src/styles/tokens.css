@@ -1,0 +1,198 @@
+/*
+ * FOUL PLAY DESIGN TOKENS
+ * ---------------------------------------------------------------------------
+ * A Material 3-structured token layer rendered in a noir palette. Everything in
+ * components.css / layouts.css is built ONLY from these variables.
+ *
+ *   1. Color roles      primary (brass) / secondary (smoke) / tertiary (blood) /
+ *                       error / surface + five container tiers / outline
+ *                       plus semantic status colors (success, warning, info)
+ *   2. Typography       display / headline / title / body / label  x  L M S
+ *   3. Shape            corner scale none -> full
+ *   4. Elevation        levels 0-5 (shadow + tonal surface tint)
+ *   5. State layers     hover / focus / pressed / dragged opacities
+ *   6. Motion           duration + easing tokens (reduced-motion aware)
+ *   7. Spacing          4px-based scale
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- 1. color roles ---------------------------------------------------- */
+  --md-sys-color-primary: #e3b45e;
+  --md-sys-color-on-primary: #3b2700;
+  --md-sys-color-primary-container: #58400c;
+  --md-sys-color-on-primary-container: #ffdea6;
+
+  --md-sys-color-secondary: #cbbfa9;
+  --md-sys-color-on-secondary: #32291a;
+  --md-sys-color-secondary-container: #443d2f;
+  --md-sys-color-on-secondary-container: #e9dfca;
+
+  --md-sys-color-tertiary: #ea7a68;
+  --md-sys-color-on-tertiary: #4b0f05;
+  --md-sys-color-tertiary-container: #6a2418;
+  --md-sys-color-on-tertiary-container: #ffdad3;
+
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+
+  --md-sys-color-success: #9fd3a0;
+  --md-sys-color-on-success: #06390f;
+  --md-sys-color-success-container: #1f4d27;
+  --md-sys-color-warning: #f2b85e;
+  --md-sys-color-on-warning: #402b00;
+  --md-sys-color-warning-container: #5a3e00;
+  --md-sys-color-info: #93bfe0;
+  --md-sys-color-on-info: #05314b;
+  --md-sys-color-info-container: #1d4a68;
+
+  --md-sys-color-surface: #0f0d11;
+  --md-sys-color-surface-dim: #0b0a0d;
+  --md-sys-color-surface-bright: #2b2830;
+  --md-sys-color-surface-container-lowest: #0a090c;
+  --md-sys-color-surface-container-low: #151318;
+  --md-sys-color-surface-container: #1a181d;
+  --md-sys-color-surface-container-high: #232028;
+  --md-sys-color-surface-container-highest: #2d2a33;
+  --md-sys-color-on-surface: #ece6da;
+  --md-sys-color-on-surface-variant: #bbb2a5;
+  --md-sys-color-outline: #8a8177;
+  --md-sys-color-outline-variant: #453f42;
+  --md-sys-color-inverse-surface: #ece6da;
+  --md-sys-color-inverse-on-surface: #2f2b30;
+  --md-sys-color-inverse-primary: #7b5610;
+  --md-sys-color-scrim: #000000;
+
+  /* paper (printable sheets shown on screen) */
+  --paper: #f6f0e3;
+  --paper-ink: #1d1916;
+  --paper-muted: #6f6459;
+  --paper-accent: #8a5c14;
+
+  /* ---- 2. typography ----------------------------------------------------- */
+  --font-display: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-stamp: 'Special Elite', 'Courier New', monospace;
+
+  --md-sys-typescale-display-large: 700 3.5rem/1.14 var(--font-display);
+  --md-sys-typescale-display-medium: 700 2.75rem/1.16 var(--font-display);
+  --md-sys-typescale-display-small: 700 2.25rem/1.22 var(--font-display);
+  --md-sys-typescale-headline-large: 700 2rem/1.25 var(--font-display);
+  --md-sys-typescale-headline-medium: 700 1.75rem/1.29 var(--font-display);
+  --md-sys-typescale-headline-small: 700 1.5rem/1.33 var(--font-display);
+  --md-sys-typescale-title-large: 600 1.375rem/1.27 var(--font-display);
+  --md-sys-typescale-title-medium: 600 1rem/1.5 var(--font-body);
+  --md-sys-typescale-title-small: 600 0.875rem/1.43 var(--font-body);
+  --md-sys-typescale-body-large: 400 1rem/1.5 var(--font-body);
+  --md-sys-typescale-body-medium: 400 0.875rem/1.43 var(--font-body);
+  --md-sys-typescale-body-small: 400 0.75rem/1.33 var(--font-body);
+  --md-sys-typescale-label-large: 600 0.875rem/1.43 var(--font-body);
+  --md-sys-typescale-label-medium: 600 0.75rem/1.33 var(--font-body);
+  --md-sys-typescale-label-small: 600 0.6875rem/1.45 var(--font-body);
+  --md-sys-typescale-stamp: 400 0.75rem/1.4 var(--font-stamp);
+  --tracking-label: 0.06em;
+  --tracking-stamp: 0.16em;
+
+  /* ---- 3. shape ---------------------------------------------------------- */
+  --md-sys-shape-none: 0;
+  --md-sys-shape-extra-small: 4px;
+  --md-sys-shape-small: 8px;
+  --md-sys-shape-medium: 12px;
+  --md-sys-shape-large: 16px;
+  --md-sys-shape-extra-large: 28px;
+  --md-sys-shape-full: 9999px;
+
+  /* ---- 4. elevation ------------------------------------------------------ */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 2px rgb(0 0 0 / 0.55), 0 1px 3px 1px rgb(0 0 0 / 0.3);
+  --md-sys-elevation-2: 0 1px 2px rgb(0 0 0 / 0.55), 0 2px 6px 2px rgb(0 0 0 / 0.32);
+  --md-sys-elevation-3: 0 1px 3px rgb(0 0 0 / 0.55), 0 4px 8px 3px rgb(0 0 0 / 0.34);
+  --md-sys-elevation-4: 0 2px 3px rgb(0 0 0 / 0.55), 0 6px 10px 4px rgb(0 0 0 / 0.36);
+  --md-sys-elevation-5: 0 4px 4px rgb(0 0 0 / 0.55), 0 8px 12px 6px rgb(0 0 0 / 0.38);
+  /* tonal surface tint (brass) layered over surfaces at each level */
+  --md-sys-elevation-tint-1: 5%;
+  --md-sys-elevation-tint-2: 8%;
+  --md-sys-elevation-tint-3: 11%;
+  --md-sys-elevation-tint-4: 12%;
+  --md-sys-elevation-tint-5: 14%;
+
+  /* ---- 5. state layers --------------------------------------------------- */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.12;
+  --md-sys-state-pressed-opacity: 0.12;
+  --md-sys-state-dragged-opacity: 0.16;
+  --md-sys-state-disabled-opacity: 0.38;
+  --focus-ring: 2px solid var(--md-sys-color-primary);
+
+  /* ---- 6. motion --------------------------------------------------------- */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  /* ---- 7. spacing -------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- layout constants -------------------------------------------------- */
+  --sidebar-width: 272px;
+  --topbar-height: 64px;
+  --content-max: 1080px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --md-sys-motion-duration-short1: 0.01ms;
+    --md-sys-motion-duration-short2: 0.01ms;
+    --md-sys-motion-duration-short3: 0.01ms;
+    --md-sys-motion-duration-short4: 0.01ms;
+    --md-sys-motion-duration-medium1: 0.01ms;
+    --md-sys-motion-duration-medium2: 0.01ms;
+    --md-sys-motion-duration-medium4: 0.01ms;
+    --md-sys-motion-duration-long2: 0.01ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* type role utility classes */
+.t-display-large { font: var(--md-sys-typescale-display-large); letter-spacing: -0.01em; }
+.t-display-medium { font: var(--md-sys-typescale-display-medium); letter-spacing: -0.01em; }
+.t-display-small { font: var(--md-sys-typescale-display-small); }
+.t-headline-large { font: var(--md-sys-typescale-headline-large); }
+.t-headline-medium { font: var(--md-sys-typescale-headline-medium); }
+.t-headline-small { font: var(--md-sys-typescale-headline-small); }
+.t-title-large { font: var(--md-sys-typescale-title-large); }
+.t-title-medium { font: var(--md-sys-typescale-title-medium); letter-spacing: 0.01em; }
+.t-title-small { font: var(--md-sys-typescale-title-small); letter-spacing: 0.01em; }
+.t-body-large { font: var(--md-sys-typescale-body-large); }
+.t-body-medium { font: var(--md-sys-typescale-body-medium); }
+.t-body-small { font: var(--md-sys-typescale-body-small); }
+.t-label-large { font: var(--md-sys-typescale-label-large); letter-spacing: 0.01em; }
+.t-label-medium { font: var(--md-sys-typescale-label-medium); letter-spacing: var(--tracking-label); }
+.t-label-small { font: var(--md-sys-typescale-label-small); letter-spacing: var(--tracking-label); }
+.t-stamp { font: var(--md-sys-typescale-stamp); letter-spacing: var(--tracking-stamp); text-transform: uppercase; }
