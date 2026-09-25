@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Callout, Dialog } from './ui';
 import { useFeedback } from './ui/feedback';
+import { plural } from '../shared/ops';
 import { FREE_CASE_LIMIT, getUnlockOffer, restorePurchases, type UnlockOffer } from './purchases';
 
 interface PurchaseError {
@@ -78,8 +79,8 @@ export function PaywallDialog({ open, onClose, onUnlocked = () => {} }: { open: 
       }
     >
       <Callout>
-        The free version keeps up to {FREE_CASE_LIMIT} mysteries in your library. Unlock the full library once, for good — no
-        subscription, no ads — to save as many as you like.
+        The free version keeps up to {plural(FREE_CASE_LIMIT, 'mystery', 'mysteries')} in your library. Unlock the full library
+        once, for good — no subscription, no ads — to save as many as you like.
       </Callout>
     </Dialog>
   );

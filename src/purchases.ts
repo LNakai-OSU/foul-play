@@ -5,7 +5,7 @@ import type { PurchasesPackage } from '@revenuecat/purchases-capacitor';
 type PurchasesModule = typeof import('@revenuecat/purchases-capacitor').Purchases;
 
 /** Free tier: cases beyond this count require the full-library unlock. */
-export const FREE_CASE_LIMIT = 5;
+export const FREE_CASE_LIMIT = 1;
 
 const ENTITLEMENT_ID = 'full_library';
 const UNLOCK_CACHE_KEY = 'foulplay:full-library-unlocked';
