@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Download, EllipsisVertical, FolderOpen, Gamepad2, Pencil, Plus, Search, Sparkles, Trash2, Upload, Users, FileSearch, Clock, Palette, Laugh, Moon, Scale } from 'lucide-react';
+import { Copy, Download, EllipsisVertical, FolderOpen, Gamepad2, Lock, Pencil, Plus, Search, Sparkles, Trash2, Upload, Users, FileSearch, Clock, Palette, Laugh, Moon, Scale } from 'lucide-react';
 import { parseImport, type Case, type CaseSummary, type Tone } from '../../shared/models';
 import { generateCase } from '../../shared/generator/generate';
 import { plural } from '../../shared/ops';
@@ -8,6 +8,8 @@ import { hrefs, navigate } from '../router';
 import { Button, Callout, Chip, Dialog, EmptyState, Menu, Spinner, TextField } from '../ui';
 import { useFeedback } from '../ui/feedback';
 import { GenerateDialog, toOptions, type GenerateChoice } from '../editor/GenerateDialog';
+import { PaywallDialog, FREE_CASE_LIMIT } from '../paywall';
+import { useUnlocked } from '../purchases';
 
 const TONE_ICON: Record<Tone, typeof Laugh> = { comedic: Laugh, serious: Scale, noir: Moon };
 
@@ -22,10 +24,12 @@ export function Library() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [genOpen, setGenOpen] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const [renaming, setRenaming] = useState<CaseSummary | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast, confirm } = useFeedback();
+  const unlocked = useUnlocked();
 
   const refresh = useCallback(async () => {
     try {
@@ -45,13 +49,26 @@ export function Library() {
     return (cases ?? []).filter((c) => !q || `${c.title} ${c.settingName}`.toLowerCase().includes(q));
   }, [cases, query]);
 
+  const atLimit = !unlocked && (cases?.length ?? 0) >= FREE_CASE_LIMIT;
+  /** Gate for anything that adds a case to the library. Opens the paywall and returns false if the free limit is reached. */
+  const canAddCase = (): boolean => {
+    if (!atLimit) return true;
+    setPaywallOpen(true);
+    return false;
+  };
+
   const createBlank = async () => {
+    if (!canAddCase()) return;
     try {
       const c = await api.create({ title: 'Untitled mystery' });
       navigate(hrefs.build(c.id, 'setting'));
     } catch (e) {
       toast(errorMessage(e));
     }
+  };
+
+  const openGenerate = () => {
+    if (canAddCase()) setGenOpen(true);
   };
 
   const createGenerated = async (choice: GenerateChoice) => {
@@ -66,6 +83,7 @@ export function Library() {
   };
 
   const duplicate = async (c: CaseSummary) => {
+    if (!canAddCase()) return;
     try {
       const copy = await api.duplicate(c.id);
       await refresh();
@@ -128,6 +146,10 @@ export function Library() {
 
   const onImportFile = async (file: File | undefined) => {
     if (!file) return;
+    if (!canAddCase()) {
+      if (fileRef.current) fileRef.current.value = '';
+      return;
+    }
     try {
       const text = await file.text();
       let data: unknown;
@@ -172,7 +194,7 @@ export function Library() {
           <h1 className="hero__title">Every great party needs a body.</h1>
           <p className="hero__lead">Build a complete murder-mystery kit: suspects, motives, clues, red herrings and a timed run-sheet. Then print the character sheets and run the night from the game-master screen.</p>
           <div className="hero__actions">
-            <Button variant="filled" size="lg" icon={<Sparkles />} onClick={() => setGenOpen(true)}>
+            <Button variant="filled" size="lg" icon={<Sparkles />} onClick={openGenerate}>
               Generate a mystery
             </Button>
             <Button variant="tonal" size="lg" icon={<Plus />} onClick={() => void createBlank()}>
@@ -190,6 +212,11 @@ export function Library() {
           <div className="toolbar">
             <h2 className="t-headline-small">Your cases</h2>
             {cases && cases.length > 0 && <Chip small>{cases.length}</Chip>}
+            {!unlocked && (
+              <Chip small tone={atLimit ? 'primary' : undefined} icon={<Lock />} onClick={() => setPaywallOpen(true)}>
+                {atLimit ? 'Free limit reached' : `${(cases?.length ?? 0)} of ${FREE_CASE_LIMIT} free`}
+              </Chip>
+            )}
             <span className="spacer" />
             <label className="search">
               <Search aria-hidden="true" />
@@ -209,7 +236,7 @@ export function Library() {
               title="The case library is empty"
               action={
                 <div className="row row--wrap" style={{ justifyContent: 'center' }}>
-                  <Button variant="filled" icon={<Sparkles />} onClick={() => setGenOpen(true)}>Generate your first mystery</Button>
+                  <Button variant="filled" icon={<Sparkles />} onClick={openGenerate}>Generate your first mystery</Button>
                   <Button variant="tonal" icon={<Plus />} onClick={() => void createBlank()}>Start from scratch</Button>
                 </div>
               }
@@ -269,6 +296,8 @@ export function Library() {
       </div>
 
       <GenerateDialog open={genOpen} onClose={() => setGenOpen(false)} title="Generate a new mystery" confirmLabel="Generate and open" initial={{}} onGenerate={(c) => void createGenerated(c)} />
+
+      <PaywallDialog open={paywallOpen} onClose={() => setPaywallOpen(false)} />
 
       <Dialog
         open={renaming !== null}

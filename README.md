@@ -31,7 +31,7 @@ Note: the shipped client (web build and the iOS app) stores its case library and
 
 ## Feature tour
 
-* **Case library** (`#/`): create (blank or generated), open, rename, duplicate, delete (with undo), import/export JSON. Cases persist on-device (`localStorage`, or the app's own storage on iOS) — no server required.
+* **Case library** (`#/`): create (blank or generated), open, rename, duplicate, delete (with undo), import/export JSON. Cases persist on-device (`localStorage`, or the app's own storage on iOS) — no server required. On iOS, the free tier caps the library at 5 cases; a one-time In-App Purchase unlocks unlimited (see **Monetization** below). Not gated on web.
 * **Guided builder**: Setting, Victim, Characters, Motives, Evidence, Red herrings, Timeline, Polish. Stepper and sidebar navigation, per-step progress, and a per-step "things to look at" panel fed by the checker. Everything autosaves, with undo/redo (Ctrl+Z / Ctrl+Shift+Z; the shortcut also works while a switch or button has focus, and leaves native undo alone inside text fields).
 * **Editable everything**: add, duplicate, delete and reorder. Drag-and-drop (mouse, touch and keyboard via `@dnd-kit`) on characters, clues and timeline beats; deletes offer an Undo snackbar (characters ask for confirmation first because they cascade).
 * **Generator**: a seeded, template-driven generator (12 settings, 82 roles, 24 murder methods, 3 tones, 38 red-herring stories with setting-specific ones, 8 motive categories, 10 visible traits, 12 mini-games). Respects tone, player range and setting; re-roll from the top bar. It first plans **who was where** (mutual alibi groups, one room per group, nobody at the scene, the killer claiming a room they were not in and a witness who saw it empty), then builds clues so only the *combination* of traits and alibis identifies the killer while decoys are just as heavily implicated. Prose follows the case: method-dependent wording matches the cause of death (no knives in a poisoning) and time-of-day wording matches the time of death (an afternoon fete never says "tonight"). Output is verified against the checker by tests across thousands of seeds.
@@ -144,6 +144,19 @@ Steps only you can do (all one-time, on Apple's / Codemagic's sites, no Xcode re
 4. In [Codemagic](https://codemagic.io), sign up, connect this GitHub repo (`LNakai-OSU/foul-play`), and under **Team settings → Integrations → App Store Connect**, add those three values as an integration named `codemagic` (matches `integrations.app_store_connect` in `codemagic.yaml`) — Codemagic uses it to create/fetch the signing certificate and provisioning profile automatically, no manual cert wrangling.
 5. Push this branch, open the project in Codemagic's dashboard, pick `ios-workflow`, and **Start new build**. It publishes straight to TestFlight (`submit_to_testflight: true`); install the TestFlight app on your iPhone to try it.
 6. Once you're happy with a build, add screenshots, description and keywords in App Store Connect, flip `submit_to_app_store: true` (or submit that build manually from App Store Connect), and submit for review.
+
+### Monetization
+
+The iOS app caps the on-device library at `FREE_CASE_LIMIT` (5) cases; a one-time, non-consumable In-App Purchase unlocks unlimited cases (`src/purchases.ts`, `src/paywall.tsx`). It's verified entirely on-device via [RevenueCat](https://www.revenuecat.com) — no backend, consistent with the rest of the app. **The web build is never gated** — the limit only applies when running as the native iOS app.
+
+Setup (in addition to the Apple Developer / App Store Connect steps above):
+
+1. In App Store Connect, add an In-App Purchase to the app: type **Non-Consumable**, e.g. product id `com.foulplay.app.full_library`, price tier $0.99, display name "Full Library Unlock".
+2. Create a free [RevenueCat](https://app.revenuecat.com) account and project, connect it to App Store Connect (Project settings → Apps → iOS app, using the same App Store Connect API key from step 3 above), and attach that product.
+3. In RevenueCat, create an **entitlement** called `full_library` attached to the product, then an **offering** with a package of type **Lifetime** pointing at it (`src/purchases.ts` looks for `offering.current.lifetime` first).
+4. Copy the iOS **public app-specific API key** from RevenueCat's project settings (API keys tab — safe to embed client-side, it's not a secret) into `REVENUECAT_IOS_API_KEY` in `src/purchases.ts`.
+
+Until that key is filled in, `src/purchases.ts` treats the app as ungated (nobody gets locked out by an unconfigured paywall). Apple requires a "Restore Purchase" option for non-consumables, which is in the paywall dialog.
 
 ## Design system
 
