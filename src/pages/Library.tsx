@@ -79,7 +79,7 @@ export function Library() {
     try {
       const full = await api.get(c.id);
       const safe = (full.title || 'mystery').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'mystery';
-      downloadBlob(`${safe}.mystery.json`, JSON.stringify(full, null, 2), 'application/json');
+      await downloadBlob(`${safe}.mystery.json`, JSON.stringify(full, null, 2), 'application/json');
       toast('Case exported as JSON');
     } catch (e) {
       toast(errorMessage(e));

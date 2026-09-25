@@ -27,14 +27,16 @@ Why `playwright-core` is a dev dependency: the script needs a browser-automation
 
 Environment: `PORT` (API port, default 3001), `DATA_DIR` (where `cases.json` lives, default `./data`). No external services, no API keys, works offline (fonts are bundled through `@fontsource`).
 
+Note: the shipped client (web build and the iOS app) stores its case library and GM run state on-device — see **On-device storage** below. `server/` is kept as optional, working infrastructure (own tests, own `npm start`) for anyone who wants to self-host a variant with shared/cross-device storage instead; the client does not talk to it by default.
+
 ## Feature tour
 
-* **Case library** (`#/`): create (blank or generated), open, rename, duplicate, delete (with undo), import/export JSON. Cases persist through the Express backend into `data/cases.json`.
+* **Case library** (`#/`): create (blank or generated), open, rename, duplicate, delete (with undo), import/export JSON. Cases persist on-device (`localStorage`, or the app's own storage on iOS) — no server required.
 * **Guided builder**: Setting, Victim, Characters, Motives, Evidence, Red herrings, Timeline, Polish. Stepper and sidebar navigation, per-step progress, and a per-step "things to look at" panel fed by the checker. Everything autosaves, with undo/redo (Ctrl+Z / Ctrl+Shift+Z; the shortcut also works while a switch or button has focus, and leaves native undo alone inside text fields).
 * **Editable everything**: add, duplicate, delete and reorder. Drag-and-drop (mouse, touch and keyboard via `@dnd-kit`) on characters, clues and timeline beats; deletes offer an Undo snackbar (characters ask for confirmation first because they cascade).
 * **Generator**: a seeded, template-driven generator (12 settings, 82 roles, 24 murder methods, 3 tones, 38 red-herring stories with setting-specific ones, 8 motive categories, 10 visible traits, 12 mini-games). Respects tone, player range and setting; re-roll from the top bar. It first plans **who was where** (mutual alibi groups, one room per group, nobody at the scene, the killer claiming a room they were not in and a witness who saw it empty), then builds clues so only the *combination* of traits and alibis identifies the killer while decoys are just as heavily implicated. Prose follows the case: method-dependent wording matches the cause of death (no knives in a poisoning) and time-of-day wording matches the time of death (an afternoon fete never says "tonight"). Output is verified against the checker by tests across thousands of seeds.
 * **Consistency checker**: 60 rules (no/multiple killers, killer without motive, missing alibi, dangling references, unscheduled clues, red herring debunked before it is revealed, no genuine evidence on the killer, player count mismatch, orphaned beats, round order, killer too obvious, …). **Alibi rules**: `alibi-companion-missing` (a companion who does not exist), `alibi-not-reciprocal` (A says they were with B but B does not name A), `alibi-place-conflict` (companions disagree on the room, or two unconnected characters claim the same room; reported once per pair) and `alibi-at-scene` (an alibi placed at the murder scene). Issue ids are unique across a report (they are used as React keys). Each issue has a severity, message, hint and a **Fix** link that opens the right step, expands the right card and focuses the right field. Live badge in the top bar, drawer panel, and full report on the Polish step.
-* **Game master view** (`#/case/:id/gm`): start the evening, reveal clues one by one, advance beats, countdown timers (pause/resume/restart, chime at zero), player-action beats that need confirmation, skipped-clue recovery, clue log, cast reference, and a hidden **solution key** behind a confirm dialog. Run state (including timers) is saved on the server per case (`GET/PUT /api/cases/:id/run`, stored in `data/runs.json`), with a localStorage copy as an offline fallback, so it survives a refresh and a second device or browser opens the same live run; reset at any time.
+* **Game master view** (`#/case/:id/gm`): start the evening, reveal clues one by one, advance beats, countdown timers (pause/resume/restart, chime at zero), player-action beats that need confirmation, skipped-clue recovery, clue log, cast reference, and a hidden **solution key** behind a confirm dialog. Run state (including timers) is saved on-device per case, so it survives a refresh; reset at any time. (A second device picking up the same live run needs the optional server — see the note above.)
 * **Print and export** (`#/case/:id/export`): character sheets, clue handouts (cut-apart cards) and a GM packet. Each is viewable as paper preview, printable with clean page breaks, and downloadable as PDF (jsPDF). Print layout: **one page per character sheet** plus one shared **table card** (title, victim, public guest list, dress code, house rules), so 6 characters print as 7 pages; handouts are 8 cut-apart cards per page with dashed cut lines; the GM packet (solution key, timeline, cast and alibis, props, and a blank scorecard) is a single flowing document that avoids a stranded last page.
 * **Play as the detective** (`#/case/:id/play`): turns any playable case into a top-down detective RPG in the spirit of the classic handheld monster games. See the next section.
 * **Design system** (`#/design`): a live gallery of the tokens and components.
@@ -97,7 +99,9 @@ shared/            code shared by client and server (pure, unit-tested)
   run.ts             game-master run state machine
   solution.ts        solution key derivation
   generator/         rng, names, settings/roles, text pools, generate()
-server/            Express app, JSON-file store, entry point
+server/            optional Express app + JSON-file store (not used by the shipped client)
+ios/               Capacitor-generated Xcode project (see "iOS app" below)
+assets/            icon.png / splash.png sources for `npx capacitor-assets generate`
 src/               React client
   styles/            tokens.css (design tokens), base, components, layouts (+ print)
   ui/                design-system components, snackbar/confirm provider
@@ -110,12 +114,43 @@ tests/             Vitest suites (checker, generator, fairness + prose sweeps, e
 e2e/               optional Chrome regression script (`npm run e2e`)
 ```
 
+## iOS app
+
+The client is wrapped for iOS with [Capacitor](https://capacitorjs.com) (`capacitor.config.ts`, app id `com.foulplay.app`, generated project in `ios/`). It ships as a fully offline, client-only app — same on-device storage as the web build, no bundled server, no CocoaPods needed for the current plugin set (SPM only).
+
+Local build (needs full Xcode, not just the Command Line Tools, from the Mac App Store):
+
+```bash
+npm run build      # typecheck + production client bundle
+npx cap sync ios   # copy dist/ into the iOS project, update native deps
+open ios/App/App.xcodeproj
+```
+
+Then pick a simulator or a signed-in device and press Run.
+
+Regenerating the icon/splash screen: edit `assets/icon.png` (1024×1024, no alpha channel) and/or `assets/splash.png` (2732×2732), then `npx capacitor-assets generate --ios`.
+
+Native plugins in use: `@capacitor/filesystem` + `@capacitor/share` so "download" (PDF/JSON export) hands the file to the iOS share sheet instead of a browser download, which WKWebView has no equivalent of.
+
+### Cloud build (no local Xcode needed): Codemagic
+
+`codemagic.yaml` at the repo root defines an `ios-workflow` that installs deps, builds the client, syncs Capacitor, archives a signed IPA and uploads it to TestFlight — entirely on Codemagic's own Mac, using the `mac_mini_m2` instance (covered by their free monthly build-minute tier). It only runs when you click **Start new build** (no `triggering` section, so pushes never auto-consume build minutes).
+
+Steps only you can do (all one-time, on Apple's / Codemagic's sites, no Xcode required):
+
+1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
+2. Create the app record in [App Store Connect](https://appstoreconnect.apple.com) (bundle id `com.foulplay.app`, name, category, age rating, a privacy policy URL — this app collects no data and stores everything on-device, which the policy should say). Note the numeric **Apple ID** App Store Connect assigns the app (App Information tab) and put it in `codemagic.yaml`'s `APP_STORE_APPLE_ID`.
+3. In App Store Connect → **Users and Access → Integrations → App Store Connect API**, create a key with **App Manager** access. Note the Issuer ID, Key ID, and download the `.p8` private key.
+4. In [Codemagic](https://codemagic.io), sign up, connect this GitHub repo (`LNakai-OSU/foul-play`), and under **Team settings → Integrations → App Store Connect**, add those three values as an integration named `codemagic` (matches `integrations.app_store_connect` in `codemagic.yaml`) — Codemagic uses it to create/fetch the signing certificate and provisioning profile automatically, no manual cert wrangling.
+5. Push this branch, open the project in Codemagic's dashboard, pick `ios-workflow`, and **Start new build**. It publishes straight to TestFlight (`submit_to_testflight: true`); install the TestFlight app on your iPhone to try it.
+6. Once you're happy with a build, add screenshots, description and keywords in App Store Connect, flip `submit_to_app_store: true` (or submit that build manually from App Store Connect), and submit for review.
+
 ## Design system
 
 Tokens in `src/styles/tokens.css` follow Material 3 structure: color roles (primary brass, secondary smoke, tertiary blood, error, success/warning/info, five surface-container tiers, outline), a 15-role type scale (Playfair Display, Inter, Special Elite), a shape scale, elevation levels with tonal tint, state-layer opacities, motion tokens (all collapsed by `prefers-reduced-motion`) and a spacing scale. Components (buttons in five emphasis levels, icon buttons, cards, chips, filled text fields, switches, segmented buttons, tabs, stepper, dialogs, snackbar, menus, nav sidebar/rail, empty states, callouts) use only those tokens; focus rings use `:focus-visible`. The layout collapses to a nav rail below 1100px.
 
 ## Known limitations
 
-* GM run state is per case, not per device: if two people drive the same run at once the newest revision wins.
+* GM run state is on-device: it does not sync across devices unless the optional `server/` is wired back up.
 * PDFs use built-in Latin-1 PDF fonts: characters outside Latin-1 are replaced with `?`.
 * Two browser tabs editing the same case last-write-wins.

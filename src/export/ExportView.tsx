@@ -223,7 +223,7 @@ export function ExportView({ doc, issues, tab }: { doc: Case; issues: Issue[]; t
         out = m.buildGmPdf(gm);
         file = `${base}-gm-packet.pdf`;
       }
-      downloadBlob(file, out.output('arraybuffer'), 'application/pdf');
+      await downloadBlob(file, out.output('arraybuffer'), 'application/pdf');
       toast(`Downloaded ${file}`);
     } catch (e) {
       toast(`Could not build the PDF: ${errorMessage(e)}`);
