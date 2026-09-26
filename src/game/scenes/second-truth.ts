@@ -14,7 +14,7 @@ import { VIEW_H, VIEW_W } from '../types';
 import type { Look, World } from '../types';
 import type { EnvId } from '../art/skins';
 import type { Tone } from '../../../shared/models';
-import { box, text, textCenter, textRight } from '../ui';
+import { box, text, textButtonCenter, textCenter, textRight } from '../ui';
 import { wrapText } from '../text';
 import { hashSeed } from '../../../shared/generator/rng';
 
@@ -192,6 +192,6 @@ export class SecondTruthScene extends Scene {
         .forEach((l, i) => text(ctx, l, 10, 138 + i * 9, '#8fd0ff', null));
       ctx.restore();
     }
-    if (this.t > 96 && Math.floor(g.tick / 20) % 2 === 0) textCenter(ctx, 'PRESS SPACE', VIEW_W / 2, VIEW_H - 11, '#eef6ff', null);
+    if (this.t > 96 && Math.floor(g.tick / 20) % 2 === 0) textButtonCenter(ctx, 'PRESS SPACE', VIEW_W / 2, VIEW_H - 11, '#eef6ff', null);
   }
 }

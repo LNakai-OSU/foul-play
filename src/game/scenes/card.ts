@@ -6,7 +6,7 @@ import { iconName } from '../icons';
 import { evidenceById, nameOf } from '../logic';
 import { wrapText } from '../text';
 import { VIEW_H, VIEW_W } from '../types';
-import { box, text, textCenter } from '../ui';
+import { box, text, textButton, textCenter } from '../ui';
 import { ENVS } from '../env';
 
 interface Spark {
@@ -156,7 +156,7 @@ export class ClueCardScene extends Scene {
       n -= l.length;
       text(ctx, part, 112, ty + i * 11, '#2a2a34', null);
     });
-    if (this.t > 24 && Math.floor(g.tick / 20) % 2 === 0) text(ctx, this.page < this.pages.length - 1 ? 'SPACE: MORE' : 'SPACE: OK', 208, y0 + 152, '#7a2a2a', null);
+    if (this.t > 24 && Math.floor(g.tick / 20) % 2 === 0) textButton(ctx, this.page < this.pages.length - 1 ? 'SPACE: MORE' : 'SPACE: OK', 208, y0 + 152, '#7a2a2a', null);
     if (this.pages.length > 1) text(ctx, `${this.page + 1}/${this.pages.length}`, 112, y0 + 152, '#9a8a78', null);
     void env;
   }

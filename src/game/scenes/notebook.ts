@@ -5,7 +5,7 @@ import { charById, clockLabel, evidenceById, MOTIVE_LABEL, nameOf, mapLabel, pro
 import { drawIcon } from '../art/icons-draw';
 import { firstPerson, wrapText } from '../text';
 import { VIEW_H, VIEW_W } from '../types';
-import { bar, cursor, text } from '../ui';
+import { bar, cursor, text, textButton } from '../ui';
 import { drawPortraitHead, drawPortraitScaled } from '../art/portraits';
 import { NightScene } from './night';
 
@@ -90,7 +90,7 @@ export class NotebookScene extends Scene {
     }
     if (this.tab === 'night') {
       const placed = Object.keys(s.night).length;
-      return [{ head: 'THE NIGHT', lines: [...wrap('Rebuild where everyone was when the shot rang out. The table only objects when it contradicts a headcount you hold.'), '', ...wrap(`${placed} of ${c.characters.length} guests placed.`), '', ...wrap('Press SPACE to open the table.')] }];
+      return [{ head: 'THE NIGHT', lines: [...wrap('Rebuild where everyone was when the shot rang out. The table only objects when it contradicts a headcount you hold.'), '', ...wrap(`${placed} of ${c.characters.length} guests placed.`), '', ...wrap('Press the yellow button to open the table.')] }];
     }
     if (this.tab === 'clues') {
       const id = s.found[this.cur];
@@ -281,7 +281,7 @@ export class NotebookScene extends Scene {
     }
     const lineStart = icon ? Math.max(60, 26 + head.length * 10) : suspectLook ? Math.max(68, 26 + head.length * 10) : 26 + head.length * 10;
     pg.lines.forEach((l, i) => text(ctx, l, DETAIL_X, lineStart + i * 11, INK, null));
-    if (pages.length > 1) text(ctx, `SPACE: NEXT ${Math.min(this.page, pages.length - 1) + 1}/${pages.length}`, VIEW_W - 8 - 15 * 8, VIEW_H - 12, '#7a2a2a', null);
+    if (pages.length > 1) textButton(ctx, `SPACE: NEXT ${Math.min(this.page, pages.length - 1) + 1}/${pages.length}`, VIEW_W - 8 - 15 * 8, VIEW_H - 12, '#7a2a2a', null);
     text(ctx, '<> TAB  X: CLOSE', 8, VIEW_H - 11, '#7e6a54', null);
   }
 }

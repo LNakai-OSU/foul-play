@@ -43,7 +43,7 @@ export class NightScene extends Scene {
 
   enter(g: Game): void {
     for (const m of Object.values(g.world.maps)) for (const n of m.npcs) if (n.charId) this.looks.set(n.charId, n.look);
-    this.caption = this.mode === 'accuse' ? 'Place everyone, then press ENTER on the one who was alone with the body. SPACE picks someone up.' : 'Where was everyone when the shot rang out? SPACE picks someone up, then a room.';
+    this.caption = this.mode === 'accuse' ? 'Place everyone, then press ENTER on the one who was alone with the body. The yellow button picks someone up.' : 'Where was everyone when the shot rang out? The yellow button picks someone up, then a room.';
     g.state.seen.includes('night-open') || g.state.seen.push('night-open');
   }
 

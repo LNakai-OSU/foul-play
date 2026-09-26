@@ -7,7 +7,7 @@ import { Scene } from '../engine';
 import type { Game } from '../engine';
 import type { RitualDef } from '../rituals';
 import { VIEW_H, VIEW_W } from '../types';
-import { box, text, textCenter } from '../ui';
+import { box, text, textButton, textCenter } from '../ui';
 import { wrapText } from '../text';
 import { hashSeed } from '../../../shared/generator/rng';
 
@@ -355,18 +355,18 @@ export class RitualScene extends Scene {
     if (this.phase === 'intro') {
       box(ctx, 8, 146, VIEW_W - 16, 42);
       wrapText(d.intro, 36).slice(0, 3).forEach((l, i) => text(ctx, l, 16, 152 + i * 10));
-      if (this.t > 20 && Math.floor(g.tick / 20) % 2 === 0) text(ctx, 'SPACE: BEGIN   X: SKIP', 148, 178, '#7a2a2a', null);
+      if (this.t > 20 && Math.floor(g.tick / 20) % 2 === 0) textButton(ctx, 'SPACE: BEGIN   X: SKIP', 148, 178, '#7a2a2a', null);
       return;
     }
     if (this.phase === 'win') {
       box(ctx, 8, 146, VIEW_W - 16, 42, '#f4ffe8');
       wrapText(this.note, 36).slice(0, 3).forEach((l, i) => text(ctx, l, 16, 152 + i * 10, '#2a4a2a'));
-      if (this.t > 30 && Math.floor(g.tick / 20) % 2 === 0) text(ctx, 'SPACE: OK', 232, 178, '#2a6a2a', null);
+      if (this.t > 30 && Math.floor(g.tick / 20) % 2 === 0) textButton(ctx, 'SPACE: OK', 232, 178, '#2a6a2a', null);
       return;
     }
     // play: goal, progress pips, the last remark and the hint
     wrapText(this.hintOn ? this.hintText() : d.goal, 36).slice(0, 2).forEach((l, i) => text(ctx, l, 8, 146 + i * 10, '#e8e0c8', null));
-    if (this.note) text(ctx, this.note, 8, 168, d.color, null);
+    if (this.note) textButton(ctx, this.note, 8, 168, d.color, null);
     text(ctx, 'ENTER: HINT  X: GIVE UP', 8, 180, '#6a648a', null);
     for (let i = 0; i < this.need; i++) rect(ctx, VIEW_W - 12 - (this.need - i) * 12, 6, 9, 9, i < this.hits ? d.color : '#3a3450');
   }
@@ -374,21 +374,21 @@ export class RitualScene extends Scene {
   private hintText(): string {
     switch (this.def.mech) {
       case 'rhythm':
-        return 'Watch for the flash. Press SPACE while it is lit. Missing widens the window.';
+        return 'Watch for the flash. Press the yellow button while it is lit. Missing widens the window.';
       case 'chain':
-        return 'Each of the three beats has its own length. Press SPACE right on each one.';
+        return 'Each of the three beats has its own length. Press the yellow button right on each one.';
       case 'hold':
-        return 'Hold SPACE down; the level rises then falls. Let go right at the mark.';
+        return 'Hold the yellow button down; the level rises then falls. Let go right at the mark.';
       case 'scrub':
         return 'The picture gets clearer as you close in. Lock it when it is crisp.';
       case 'reverse':
-        return 'The target drifts. Chase it with LEFT / RIGHT, then hold SPACE on it.';
+        return 'The target drifts. Chase it with LEFT / RIGHT, then hold the yellow button on it.';
       case 'track':
         return 'Find the marks in order, first to last. The next one glows brightest.';
       case 'scan':
-        return 'LEFT / RIGHT move between the spots. SPACE checks the one you are on.';
+        return 'LEFT / RIGHT move between the spots. The yellow button checks the one you are on.';
       default:
-        return 'Sweep slowly. Marks glow when you are close. Stand on one and press SPACE.';
+        return 'Sweep slowly. Marks glow when you are close. Stand on one and press the yellow button.';
     }
   }
 

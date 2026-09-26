@@ -8,7 +8,7 @@ import { ENVS } from '../env';
 import { K, FLAVOR, kindOf } from '../tiles';
 import { DIR_VEC, OPPOSITE, TILE, VIEW_H, VIEW_W } from '../types';
 import type { Dir, ExtraDef, MapDef, NpcDef } from '../types';
-import { box, text } from '../ui';
+import { box, text, textButton } from '../ui';
 import { DETECTIVE_LOOK } from '../world';
 import { blockedTerrain } from '../grid';
 import { Rng, hashSeed } from '../../../shared/generator/rng';
@@ -223,7 +223,7 @@ export class OverworldScene extends Scene {
     }
     if (s.dir !== dir) {
       s.dir = dir;
-      this.turnDelay = 5;
+      this.turnDelay = 2;
       return;
     }
     if (this.turnDelay > 0) {
@@ -253,7 +253,7 @@ export class OverworldScene extends Scene {
     s.y = ny;
     s.steps++;
     this.moveDir = dir;
-    this.moveFrames = inp.run ? 5 : 9;
+    this.moveFrames = inp.run ? 4 : 7;
     this.moveT = this.moveFrames;
     this.side = !this.side;
     if (s.steps % 2 === 0) g.audio.step(map.env, map.outdoor);
@@ -749,7 +749,7 @@ export class OverworldScene extends Scene {
         const by = Math.max(band.floor, Math.min(band.maxTopFor(bh), naturalBy));
         if (!coveredByOverlay && band.fits(by, bh)) {
           box(ctx, bx, by, bw, bh, wp?.scene ? '#ffe0d8' : '#fff7d8');
-          lines.forEach((l, i) => text(ctx, l, bx + 5, by + 3 + i * 9, t.kind === 'door' ? '#7a2a2a' : '#2a2a34'));
+          lines.forEach((l, i) => textButton(ctx, l, bx + 5, by + 3 + i * 9, t.kind === 'door' ? '#7a2a2a' : '#2a2a34'));
         }
       }
     } else {

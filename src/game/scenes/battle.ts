@@ -16,7 +16,7 @@ import { drawLighting } from '../render';
 import type { LightSource } from '../render';
 import { VIEW_H, VIEW_W } from '../types';
 import type { Look, MapDef } from '../types';
-import { bar, box, cursor, ellipse, nameLines, text, textCenter, textRight } from '../ui';
+import { bar, box, cursor, ellipse, nameLines, text, textButtonRight, textCenter, textRight } from '../ui';
 import { wrapText } from '../text';
 import { normPlace } from '../../../shared/ops';
 import { DETECTIVE_LOOK, MAX_COMPOSURE } from '../world';
@@ -560,7 +560,7 @@ export class BattleScene extends Scene {
     this.drawFx(ctx);
   }
 
-  /** One statement at a time, in full: LEFT / RIGHT turn the pages, SPACE opens the options. */
+  /** One statement at a time, in full: LEFT / RIGHT turn the pages, the yellow button opens the options. */
   private drawTestimony(g: Game, ctx: CanvasRenderingContext2D): void {
     void g;
     const st = this.statements[this.stmtCur] as Statement;
@@ -577,7 +577,7 @@ export class BattleScene extends Scene {
     });
     text(ctx, KIND_LABEL[st.kind], 104, 106, broken ? '#a02828' : '#7a6aa8', null);
     if (broken) textRight(ctx, 'BROKEN', VIEW_W - 12, 106, '#c02828', null);
-    else textRight(ctx, 'SPACE:OPTIONS', VIEW_W - 12, 106, '#9a8a78', null);
+    else textButtonRight(ctx, 'SPACE:OPTIONS', VIEW_W - 12, 106, '#9a8a78', null);
     const lines = wrapText(st.text, TEXT_COLS);
     lines.forEach((l, k) => {
       const y = 121 + k * 10;

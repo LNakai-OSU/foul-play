@@ -7,7 +7,7 @@ import { collectLights, drawAmbient, drawLighting, drawMapTiles } from '../rende
 import { ENVS } from '../env';
 import type { MapDef } from '../types';
 import { VIEW_H, VIEW_W } from '../types';
-import { box, cursor, text, textCenter, truncate } from '../ui';
+import { box, cursor, text, textButtonCenter, textCenter, truncate } from '../ui';
 import { DETECTIVE_LOOK } from '../world';
 import { wrapText } from '../text';
 import { ask, say } from './dialogue';
@@ -115,7 +115,7 @@ export class TitleScene extends Scene {
     wrapText(g.world.c.title || 'A Murder Mystery', 34).slice(0, 2).forEach((l, i) => textCenter(ctx, l, VIEW_W / 2, 74 + i * 11, '#d8d8ec', '#181828'));
     wrapText((g.world.c.setting.name || ENVS[g.world.env].label).toUpperCase(), 36).slice(0, 1).forEach((l) => textCenter(ctx, l, VIEW_W / 2, VIEW_H - 11, '#b8b8d0', null));
     if (this.phase === 'press') {
-      if (Math.floor(g.tick / 30) % 2 === 0) textCenter(ctx, 'PRESS SPACE', VIEW_W / 2, 122, '#ffffff', '#181828');
+      if (Math.floor(g.tick / 30) % 2 === 0) textButtonCenter(ctx, 'PRESS SPACE', VIEW_W / 2, 122, '#ffffff', '#181828');
       return;
     }
     const items = this.items(g);
@@ -157,7 +157,7 @@ export class NameScene extends Scene {
         'fade',
         () => {
           g.reset(new OverworldScene());
-          say(g, [`A rainy night. ${name} the detective steps into ${g.world.c.setting.name || 'town'}.`, `${g.world.inspectorName} is waiting nearby. Walk with the ARROW KEYS or WASD, talk and confirm with SPACE, and open the menu with ENTER.`]);
+          say(g, [`A rainy night. ${name} the detective steps into ${g.world.c.setting.name || 'town'}.`, `${g.world.inspectorName} is waiting nearby. Walk with the ARROW KEYS or WASD, talk and confirm with the yellow button, and open the menu with ENTER.`]);
         },
         18,
       ),

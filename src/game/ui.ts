@@ -33,6 +33,47 @@ export function textRight(ctx: Ctx, s: string, rx: number, y: number, color = IN
   text(ctx, s, rx - s.length * 8, y, color, shadow);
 }
 
+/** The touch pad's confirm button: a small yellow square with a shaded bottom
+ *  edge and a highlight, standing in for the word "SPACE" in on-screen prompts. */
+export function buttonIcon(ctx: Ctx, x: number, y: number): void {
+  const px = Math.round(x);
+  const py = Math.round(y);
+  ctx.fillStyle = '#5a4212';
+  ctx.fillRect(px, py, 6, 6);
+  ctx.fillStyle = '#f0c419';
+  ctx.fillRect(px, py, 6, 5);
+  ctx.fillStyle = '#fbe17e';
+  ctx.fillRect(px + 1, py + 1, 3, 1);
+}
+
+/** Draws over each icon's slot in an already-drawn string (see textButton). */
+function overlayButtons(ctx: Ctx, s: string, x: number, y: number): void {
+  let i = s.indexOf('SPACE');
+  while (i !== -1) {
+    buttonIcon(ctx, x + i * 8 + 17, y + 1);
+    i = s.indexOf('SPACE', i + 5);
+  }
+}
+
+/**
+ * Like `text`, but every "SPACE" is drawn as a small yellow button icon
+ * instead of the word. "SPACE" is replaced with 5 spaces first so the
+ * string's length — and every existing centering/right-align call site — is
+ * unaffected; the icon is then stamped on top of that blank run.
+ */
+export function textButton(ctx: Ctx, s: string, x: number, y: number, color = INK, shadow: string | null = INK_SOFT): void {
+  text(ctx, s.replace(/SPACE/g, '     '), x, y, color, shadow);
+  overlayButtons(ctx, s, Math.round(x), Math.round(y));
+}
+
+export function textButtonCenter(ctx: Ctx, s: string, cx: number, y: number, color = INK, shadow: string | null = INK_SOFT): void {
+  textButton(ctx, s, cx - (s.length * 8) / 2, y, color, shadow);
+}
+
+export function textButtonRight(ctx: Ctx, s: string, rx: number, y: number, color = INK, shadow: string | null = INK_SOFT): void {
+  textButton(ctx, s, rx - s.length * 8, y, color, shadow);
+}
+
 /** "Dashiell \"Cricket\" Stanhope" -> "Dashiell Stanhope" for tight spaces. */
 export function shortName(n: string): string {
   return n.replace(/["\u201c\u201d][^"\u201c\u201d]*["\u201c\u201d]/g, '').replace(/\s+/g, ' ').trim() || n;

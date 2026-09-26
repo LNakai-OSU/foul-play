@@ -3,7 +3,7 @@ import { Copy, Download, EllipsisVertical, FolderOpen, Gamepad2, Lock, Pencil, P
 import { parseImport, type Case, type CaseSummary, type Tone } from '../../shared/models';
 import { generateCase } from '../../shared/generator/generate';
 import { plural } from '../../shared/ops';
-import { api, downloadBlob, errorMessage } from '../api';
+import { api, DEFAULT_CASE_OPTIONS, downloadBlob, ensureDefaultCase, errorMessage } from '../api';
 import { hrefs, navigate } from '../router';
 import { Button, Callout, Chip, Dialog, EmptyState, Menu, Spinner, TextField } from '../ui';
 import { useFeedback } from '../ui/feedback';
@@ -41,7 +41,7 @@ export function Library() {
   }, []);
   useEffect(() => {
     document.title = 'Foul Play · Case library';
-    void refresh();
+    void ensureDefaultCase().then(refresh);
   }, [refresh]);
 
   const filtered = useMemo(() => {
@@ -69,6 +69,22 @@ export function Library() {
 
   const openGenerate = () => {
     if (canAddCase()) setGenOpen(true);
+  };
+
+  /** Jumps straight into the game: the most recently played/edited case, or a fresh one if the library is somehow empty. */
+  const playAsDetective = async () => {
+    if (cases && cases.length > 0) {
+      navigate(hrefs.play(cases[0]!.id));
+      return;
+    }
+    if (!canAddCase()) return;
+    try {
+      const c = await api.create({ generate: DEFAULT_CASE_OPTIONS });
+      await refresh();
+      navigate(hrefs.play(c.id));
+    } catch (e) {
+      toast(errorMessage(e));
+    }
   };
 
   const createGenerated = async (choice: GenerateChoice) => {
@@ -192,12 +208,15 @@ export function Library() {
         <section className="hero">
           <span className="stamp" style={{ marginBottom: 'var(--space-4)' }}>Case files</span>
           <h1 className="hero__title">Every great party needs a body.</h1>
-          <p className="hero__lead">Build a complete murder-mystery kit: suspects, motives, clues, red herrings and a timed run-sheet. Then print the character sheets and run the night from the game-master screen.</p>
+          <p className="hero__lead">Play the case yourself as a top-down detective, or build a complete murder-mystery kit: suspects, motives, clues, red herrings and a timed run-sheet, then print character sheets and run the night from the game-master screen.</p>
           <div className="hero__actions">
-            <Button variant="filled" size="lg" icon={<Sparkles />} onClick={openGenerate}>
+            <Button variant="filled" size="lg" icon={<Gamepad2 />} onClick={() => void playAsDetective()}>
+              Play as detective
+            </Button>
+            <Button variant="tonal" size="lg" icon={<Sparkles />} onClick={openGenerate}>
               Generate a mystery
             </Button>
-            <Button variant="tonal" size="lg" icon={<Plus />} onClick={() => void createBlank()}>
+            <Button variant="outlined" size="lg" icon={<Plus />} onClick={() => void createBlank()}>
               Start from scratch
             </Button>
             <Button variant="outlined" size="lg" icon={<Upload />} onClick={() => fileRef.current?.click()}>
@@ -236,8 +255,9 @@ export function Library() {
               title="The case library is empty"
               action={
                 <div className="row row--wrap" style={{ justifyContent: 'center' }}>
-                  <Button variant="filled" icon={<Sparkles />} onClick={openGenerate}>Generate your first mystery</Button>
-                  <Button variant="tonal" icon={<Plus />} onClick={() => void createBlank()}>Start from scratch</Button>
+                  <Button variant="filled" icon={<Gamepad2 />} onClick={() => void playAsDetective()}>Play as detective</Button>
+                  <Button variant="tonal" icon={<Sparkles />} onClick={openGenerate}>Generate your first mystery</Button>
+                  <Button variant="outlined" icon={<Plus />} onClick={() => void createBlank()}>Start from scratch</Button>
                 </div>
               }
             >

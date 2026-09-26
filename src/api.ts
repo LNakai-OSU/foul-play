@@ -28,7 +28,14 @@ interface FileShape {
   cases: Case[];
 }
 
-const newCaseId = () => `case_${crypto.randomUUID().replace(/-/g, '').slice(0, 14)}`;
+// crypto.randomUUID() requires a secure context (https, or localhost) and throws
+// over plain http on a LAN address; getRandomValues() has no such restriction.
+function newCaseId(): string {
+  const bytes = new Uint8Array(7);
+  crypto.getRandomValues(bytes);
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `case_${hex}`;
+}
 
 function readCases(): Map<string, Case> {
   const map = new Map<string, Case>();
@@ -50,6 +57,31 @@ function readCases(): Map<string, Case> {
 function writeCases(map: Map<string, Case>): void {
   const body: FileShape = { version: 1, cases: [...map.values()] };
   localStorage.setItem(CASES_KEY, JSON.stringify(body));
+}
+
+const SEEDED_KEY = 'foulplay:seeded-default';
+
+/** A fixed seed, so this exact case ships for everyone — a country-house
+ *  whodunit is the most recognizable setting for a first-time player. */
+export const DEFAULT_CASE_OPTIONS: GenerateOptions = { tone: 'noir', settingId: 'manor', playerMin: 6, playerMax: 8, seed: 424242 };
+
+/**
+ * Ships one ready-to-play example case so a first-time user always has
+ * something to open — runs at most once, ever (per device), so deleting it
+ * later doesn't bring it back.
+ */
+export async function ensureDefaultCase(): Promise<void> {
+  try {
+    if (localStorage.getItem(SEEDED_KEY)) return;
+    localStorage.setItem(SEEDED_KEY, '1');
+  } catch {
+    return; // no localStorage (private mode etc.): nothing to persist anyway
+  }
+  const cases = readCases();
+  if (cases.size > 0) return;
+  const kase = generateCase(DEFAULT_CASE_OPTIONS, { id: newCaseId(), createdAt: new Date().toISOString() });
+  cases.set(kase.id, kase);
+  writeCases(cases);
 }
 
 export const api = {

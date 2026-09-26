@@ -13,7 +13,6 @@ import { ReconstructionScene } from './scenes/recon';
 import { TitleScene } from './scenes/title';
 import { RitualScene } from './scenes/ritual';
 import { RITUALS } from './rituals';
-import { TimeCardScene } from './scenes/misc';
 
 type Any = Record<string, unknown>;
 
@@ -85,7 +84,6 @@ export function renderScreens(host: HTMLElement, w: World): void {
     for (const c of w.c.characters) g.state.night[c.id] = w.claims[c.id]?.room ?? w.sceneMapId;
     g.push(new NightScene('browse'));
   }, 20);
-  shoot(host, 'Time card: the story moves on', w, (g) => g.push(new TimeCardScene(w.chapters[1]?.time ?? '9:40 PM', w.chapters[1]?.title ?? 'The lights go out', () => {})), 60);
   shoot(host, 'Reconstruction: a sepia ghost replays the night in the setting itself', w, (g) => {
     g.state.found = w.c.evidence.map((e) => e.id);
     g.push(new ReconstructionScene(() => {}));

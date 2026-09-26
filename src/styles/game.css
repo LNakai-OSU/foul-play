@@ -114,27 +114,14 @@
   font: 600 12px/1.2 var(--font-body);
 }
 
-/* on-screen pad, shown on touch devices only */
+/* on-screen pad: hidden on mouse/trackpad, shown as a full-screen transparent
+   overlay on touch devices (see the (pointer: coarse) block below), so it sits
+   on top of the game view instead of taking its own row beneath it. */
 .game-touch {
   display: none;
-  position: relative;
-  width: min(100%, 420px);
-  height: 170px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-}
-
-@media (pointer: coarse) {
-  .game-stage {
-    justify-content: flex-start;
-  }
-  .game-touch {
-    display: block;
-  }
-  .game-keys {
-    display: none;
-  }
 }
 
 .pad {
@@ -142,24 +129,30 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 70%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container-high) 45%, transparent);
   color: var(--md-sys-color-on-surface);
   font: 700 16px/1 var(--font-body);
   touch-action: none;
+  pointer-events: auto;
+  backdrop-filter: blur(2px);
 }
 
 .pad:active {
-  background: var(--md-sys-color-primary-container);
+  background: color-mix(in srgb, var(--md-sys-color-primary-container) 65%, transparent);
 }
 
-.pad-up { left: 58px; top: 10px; }
-.pad-left { left: 8px; top: 60px; }
-.pad-right { left: 108px; top: 60px; }
-.pad-down { left: 58px; top: 110px; }
-.pad-a { right: 8px; top: 34px; width: 74px; height: 74px; font-size: 12px; background: var(--md-sys-color-primary-container); }
-.pad-b { right: 92px; top: 92px; font-size: 11px; }
-.pad-start { left: calc(50% - 30px); bottom: 0; width: 60px; height: 30px; border-radius: 15px; font-size: 11px; }
+/* Anchored to the screen edges (not to each other) so the cluster stays put
+   however big the viewport is — bottom-left d-pad, bottom-right actions,
+   bottom-center menu — clear of iPhone home-indicator / notch safe areas. */
+.pad-up { left: calc(env(safe-area-inset-left, 0px) + 62px); bottom: calc(env(safe-area-inset-bottom, 0px) + 132px); }
+.pad-left { left: calc(env(safe-area-inset-left, 0px) + 8px); bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); }
+.pad-right { left: calc(env(safe-area-inset-left, 0px) + 116px); bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); }
+.pad-down { left: calc(env(safe-area-inset-left, 0px) + 62px); bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
+.pad-a { right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 88px); width: 74px; height: 74px; background: color-mix(in srgb, #f0c419 55%, transparent); border-color: color-mix(in srgb, #5a4212 70%, transparent); }
+.pad-a:active { background: color-mix(in srgb, #f0c419 80%, transparent); }
+.pad-b { right: calc(env(safe-area-inset-right, 0px) + 96px); bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); font-size: 11px; }
+.pad-start { left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); width: 60px; height: 30px; border-radius: 15px; font-size: 11px; }
 
 @media (max-width: 720px) {
   .game-head {
@@ -175,6 +168,58 @@
   .game-frame {
     padding: 8px;
     border-radius: 14px;
+  }
+}
+
+@media (pointer: coarse) {
+  /* Fullscreen game: the header floats over the game instead of pushing it
+     down, and there's no bezel/reserved space, so the canvas can fill the
+     whole viewport in both orientations. */
+  .game-page {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .game-head {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    padding: calc(env(safe-area-inset-top, 0px) + var(--space-2)) calc(env(safe-area-inset-right, 0px) + var(--space-3)) var(--space-2) calc(env(safe-area-inset-left, 0px) + var(--space-3));
+    background: color-mix(in srgb, var(--md-sys-color-surface) 45%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: none;
+  }
+  .game-stage {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    gap: 0;
+  }
+  .game-frame {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+  .game-canvas {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .game-touch {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .game-keys {
+    display: none;
   }
 }
 

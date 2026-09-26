@@ -23,7 +23,7 @@ const TOUCH: { btn: Btn; label: string; cls: string }[] = [
   { btn: 'right', label: '▶', cls: 'pad-right' },
   { btn: 'down', label: '▼', cls: 'pad-down' },
   { btn: 'b', label: 'BACK', cls: 'pad-b' },
-  { btn: 'a', label: 'SPACE', cls: 'pad-a' },
+  { btn: 'a', label: '', cls: 'pad-a' },
   { btn: 'start', label: 'MENU', cls: 'pad-start' },
 ];
 
@@ -88,14 +88,18 @@ export default function GamePage({ caseId }: { caseId: string }) {
     };
   }, [caseId]);
 
-  // integer scaling keeps the pixels crisp
+  // integer scaling keeps the pixels crisp (touch devices trade that for filling the screen instead — see game.css)
   useEffect(() => {
     const fit = () => {
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        const s = Math.min(window.innerWidth / VIEW_W, window.innerHeight / VIEW_H);
+        setScale(Math.max(0.6, s));
+        return;
+      }
       // subtract the stage padding (16 each side), the bezel and its border so the frame never overflows
       const bezel = window.innerWidth <= 720 ? 8 : 14;
       const w = (wrapRef.current?.clientWidth ?? VIEW_W) - 32 - bezel * 2 - 6;
-      const reserve = window.matchMedia('(pointer: coarse)').matches ? 300 : 210;
-      const s = Math.min(w / VIEW_W, (window.innerHeight - reserve) / VIEW_H);
+      const s = Math.min(w / VIEW_W, (window.innerHeight - 210) / VIEW_H);
       setScale(s >= 2 ? Math.floor(s) : Math.max(0.6, s));
     };
     fit();

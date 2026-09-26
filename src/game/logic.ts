@@ -458,7 +458,7 @@ export function sneakWatchHint(w: World, sneaks: { from: number; to: number }[],
 /** One line on what to do next, for the goal banner and the menu. */
 export function goalText(w: World, s: GameState): string {
   if (s.done) return 'The case is closed.';
-  if (!s.briefed) return `Talk to ${w.inspectorName}: walk up and press SPACE.`;
+  if (!s.briefed) return `Talk to ${w.inspectorName}: walk up and press the yellow button.`;
   const open = unlockedEvidence(w, s).filter((id) => !s.found.includes(id));
   const chk = checkNight(w, s);
   if (open.length) return `Question everyone, ask the staff what they saw, and hunt for clues. Then rebuild THE NIGHT (ENTER).`;

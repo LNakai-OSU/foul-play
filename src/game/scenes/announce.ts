@@ -1,10 +1,9 @@
 /** Story announcements shared by the overworld and interviews: clue found, red herring cleared, chapter reached. */
 import type { Game } from '../engine';
-import { advanceChapter, checkCleared, clockLabel, evidenceById } from '../logic';
+import { advanceChapter, checkCleared, evidenceById } from '../logic';
 import type { Cleared } from '../logic';
 import { ClueCardScene } from './card';
 import { say } from './dialogue';
-import { TimeCardScene } from './misc';
 
 /** Show the item-get card for a clue (with its icon and description), then continue. */
 export function announceClue(g: Game, evId: string, found: boolean, then: () => void): void {
@@ -31,14 +30,10 @@ export function runChapters(g: Game, then: () => void): void {
   }
   const cleared = checkCleared(g.world, g.state);
   g.audio.sfx('event');
-  g.push(
-    new TimeCardScene(clockLabel(g.world, g.state), ch.title, () => {
-      const lines: string[] = [];
-      if (ch.description) lines.push(ch.description);
-      if (ch.evidenceIds.length) lines.push('That could change things. Perhaps there is something new to find around here.');
-      const after = () => announceCleared(g, cleared, () => (ch.evidenceIds.length ? (g.save(), then()) : runChapters(g, then)));
-      if (lines.length) say(g, lines, after);
-      else after();
-    }),
-  );
+  const lines: string[] = [];
+  if (ch.description) lines.push(ch.description);
+  if (ch.evidenceIds.length) lines.push('That could change things. Perhaps there is something new to find around here.');
+  const after = () => announceCleared(g, cleared, () => (ch.evidenceIds.length ? (g.save(), then()) : runChapters(g, then)));
+  if (lines.length) say(g, lines, after);
+  else after();
 }

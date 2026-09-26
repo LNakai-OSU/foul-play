@@ -120,7 +120,7 @@ export function inspectorTalk(g: Game): void {
     { who: name, text: c.setting.description || `It is a night to remember at ${c.setting.name || 'the estate'}. Unfortunately.` },
     { who: name, text: `${c.victim.name || 'The host'} was found dead in ${c.victim.placeOfDeath || 'the building'}${c.victim.timeOfDeath ? ` at ${c.victim.timeOfDeath}` : ''}. ${c.victim.causeOfDeath ? c.victim.causeOfDeath + '.' : ''}`.trim() },
     { who: name, text: `${c.characters.length} suspects are in the building, and I have told every one of them to stay put. The staff did their rounds at the shot and counted heads in the rooms. Somebody's story does not add up.` },
-    { who: name, text: 'Walk up to people and things and press SPACE. Question everyone and read their statements: PRESS them for leads. Rebuild THE NIGHT from what you learn (ENTER opens it). When the table adds up, find me.' },
+    { who: name, text: 'Walk up to people and things and press the yellow button. Question everyone and read their statements: PRESS them for leads. Rebuild THE NIGHT from what you learn (ENTER opens it). When the table adds up, find me.' },
   ];
   say(g, lines, () => {
     s.briefed = true;
