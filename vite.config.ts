@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 const apiPort = process.env.PORT ?? '3001';
 
 export default defineConfig({
+  // The iOS (Capacitor) build and local dev serve from the root; the GitHub Pages
+  // deploy (see .github/workflows/pages.yml) lives under /foul-play/ instead.
+  base: process.env.GITHUB_PAGES ? '/foul-play/' : '/',
   plugins: [react()],
   server: {
     // Bind IPv4 loopback explicitly: Vite's default "localhost" can resolve to IPv6-only (::1),

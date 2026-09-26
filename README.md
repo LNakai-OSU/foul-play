@@ -2,6 +2,8 @@
 
 Build, run and print your own murder-mystery party kit. Generate a complete scenario in one click (or build one by hand), tweak everything, then run the evening from a live game-master screen and print spoiler-safe character sheets and clue cards.
 
+**Live web build:** https://lnakai-osu.github.io/foul-play/ — auto-deployed by `.github/workflows/pages.yml` on every push to `main`, so it's reachable from any device, anywhere, without needing this machine to be on.
+
 ## Run it
 
 ```bash
