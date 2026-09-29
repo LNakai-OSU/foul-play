@@ -4,6 +4,14 @@ Build, run and print your own murder-mystery party kit. Generate a complete scen
 
 **Live web build:** https://lnakai-osu.github.io/foul-play/ — auto-deployed by `.github/workflows/pages.yml` on every push to `main`, so it's reachable from any device, anywhere, without needing this machine to be on.
 
+## Screenshots
+
+![The case library - saved mysteries with a status badge, plus buttons to generate a new one or start from scratch](screenshots/01-case-library.png)
+
+![Case library on a fresh visit](screenshots/02-case-library-alt.png)
+
+![Generating a new mystery](screenshots/03-generate-mystery.png)
+
 ## Run it
 
 ```bash
